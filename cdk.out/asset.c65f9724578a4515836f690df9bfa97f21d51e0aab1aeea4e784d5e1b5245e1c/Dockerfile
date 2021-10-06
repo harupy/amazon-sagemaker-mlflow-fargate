@@ -1,6 +1,6 @@
 FROM python:3.8.0
 
-RUN pip install git+https://github.com/harupy/mlflow.git@stream
+RUN pip install git+https://github.com/harupy/mlflow@stream
 RUN pip install boto3 smart_open
 
 EXPOSE 5000
