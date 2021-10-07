@@ -66,9 +66,9 @@ class DeploymentStack(core.Stack):
         private_subnet = ec2.SubnetConfiguration(
             name="Private", subnet_type=ec2.SubnetType.PRIVATE, cidr_mask=28
         )
-        isolated_subnet = ec2.SubnetConfiguration(
-            name="DB", subnet_type=ec2.SubnetType.ISOLATED, cidr_mask=28
-        )
+        # isolated_subnet = ec2.SubnetConfiguration(
+        #     name="DB", subnet_type=ec2.SubnetType.ISOLATED, cidr_mask=28
+        # )
 
         vpc = ec2.Vpc(
             scope=self,
@@ -77,7 +77,8 @@ class DeploymentStack(core.Stack):
             max_azs=2,
             nat_gateway_provider=ec2.NatProvider.gateway(),
             nat_gateways=1,
-            subnet_configuration=[public_subnet, private_subnet, isolated_subnet],
+            # subnet_configuration=[public_subnet, private_subnet, isolated_subnet],
+            subnet_configuration=[public_subnet, private_subnet],
         )
         vpc.add_gateway_endpoint(
             "S3Endpoint", service=ec2.GatewayVpcEndpointAwsService.S3
@@ -129,6 +130,10 @@ class DeploymentStack(core.Stack):
             task_role=role,
         )
 
+        log_driver = ecs.LogDriver.aws_logs(
+            stream_prefix="mlflow",
+        )
+
         container = task_definition.add_container(
             id="Container",
             image=ecs.ContainerImage.from_asset(
@@ -141,6 +146,9 @@ class DeploymentStack(core.Stack):
                 # 'DATABASE': db_name,
                 # 'USERNAME': username
             },
+            logging=log_driver,
+            # cpu=0.25,
+            # memory_limit_mib=0.5,  # 0.5 MiB
             # secrets={
             #     'PASSWORD': ecs.Secret.from_secrets_manager(db_password_secret)
             # }
@@ -166,13 +174,13 @@ class DeploymentStack(core.Stack):
         )
 
         # Setup autoscaling policy
-        scaling = fargate_service.service.auto_scale_task_count(max_capacity=2)
-        scaling.scale_on_cpu_utilization(
-            id="AUTOSCALING",
-            target_utilization_percent=70,
-            scale_in_cooldown=core.Duration.seconds(60),
-            scale_out_cooldown=core.Duration.seconds(60),
-        )
+        # scaling = fargate_service.service.auto_scale_task_count(max_capacity=2)
+        # scaling.scale_on_cpu_utilization(
+        #     id="AUTOSCALING",
+        #     target_utilization_percent=70,
+        #     scale_in_cooldown=core.Duration.seconds(60),
+        #     scale_out_cooldown=core.Duration.seconds(60),
+        # )
         # ==================================================
         # =================== OUTPUTS ======================
         # ==================================================
