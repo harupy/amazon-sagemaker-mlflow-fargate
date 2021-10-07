@@ -128,6 +128,8 @@ class DeploymentStack(core.Stack):
             scope=self,
             id="MLflow",
             task_role=role,
+            cpu=256,
+            memory_limit_mib=512,
         )
 
         log_driver = ecs.LogDriver.aws_logs(
@@ -147,8 +149,6 @@ class DeploymentStack(core.Stack):
                 # 'USERNAME': username
             },
             logging=log_driver,
-            # cpu=0.25,
-            # memory_limit_mib=0.5,  # 0.5 MiB
             # secrets={
             #     'PASSWORD': ecs.Secret.from_secrets_manager(db_password_secret)
             # }
